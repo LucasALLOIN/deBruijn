@@ -8,6 +8,8 @@ import System.Exit
 import Data.List
 import Data.String
 import System.Exit
+import Text.Read
+
 
 prefixArg::String
 prefixArg = "--"
@@ -30,11 +32,14 @@ main = do
     let flag = epureFlag (fst test)
     let arg = snd test
     let alphabet = getDefaultAlphabet arg
+    n_int <- case readMaybe (head arg) of
+        Just x -> return x
+        Nothing -> exitWith (ExitFailure 84)
     putStrLn "Arg flag:"
     mapM putStrLn flag
     putStrLn "Arg value:"
     mapM putStrLn arg
-    if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet
+    if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && not (n_int == 0)
     then do
         launchMode (head flag) (head arg) alphabet
         putStrLn "OK"
