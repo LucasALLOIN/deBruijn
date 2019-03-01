@@ -35,14 +35,10 @@ main = do
     n_int <- case readMaybe (head arg) of
         Just x -> return x
         Nothing -> exitWith (ExitFailure 84)
-    putStrLn "Arg flag:"
-    mapM putStrLn flag
-    putStrLn "Arg value:"
-    mapM putStrLn arg
     if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && not (n_int == 0)
     then do
         launchMode (head flag) (head arg) alphabet
-        putStrLn "OK"
+        exitWith (ExitSuccess)
     else
         exitWith (ExitFailure 84)
 
@@ -55,20 +51,24 @@ launchMode mod n alphabet
 
 unique::String -> String -> IO()
 unique n alphabet = do
-        let convert_n = read n::Integer
+        let convert_n = read n::Int
         putStrLn "unique"
         putStrLn n
         putStrLn alphabet
 
 check::String -> String -> IO()
 check n alphabet = do
-        let convert_n = read n::Integer
+        let convert_n = read n::Int
         input <- getLine
-        putStrLn input
+        if length input == length (alphabet) ^ convert_n
+        then
+            putStrLn "OK"
+        else
+            putStrLn "KO"
 
 clean::String -> String -> IO()
 clean n alphabet = do
-        let convert_n = read n::Integer
+        let convert_n = read n::Int
         putStrLn "clean"
         putStrLn n
         putStrLn alphabet
