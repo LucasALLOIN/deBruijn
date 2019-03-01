@@ -1,0 +1,22 @@
+name:                 deBruijn
+version:              0.1.0.0
+synopsis:
+-- description:
+-- license:
+-- license-file:
+homepage:
+author:               Lucas ALLOIN
+maintainer:           lucas.alloin@epitech.eu
+category:
+-- copyright:
+build-type:           Simple
+-- extra-source-files:
+cabal-version:        >=1.10
+
+executable deBruijn
+  main-is:              Main.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:        base >= 4.7 && < 5
+  hs-source-dirs:       sources
+  default-language:     Haskell2010
