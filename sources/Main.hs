@@ -73,9 +73,29 @@ check n alphabet = do
 clean::String -> String -> IO()
 clean n alphabet = do
         let convert_n = read n::Int
-        putStrLn "clean"
-        putStrLn n
-        putStrLn alphabet
+        values <- cleanGet [] convert_n alphabet
+        mapM printClean values
+        return ()
+
+printClean::(String, [[String]]) -> IO()
+printClean val = putStrLn (fst val)
+
+cleanGet::[(String, [[String]])] -> Int -> String -> IO([(String, [[String]])])
+cleanGet xs n alphabet = do
+        input <- getLine
+        if input == "END"
+        then
+            return (xs)
+        else do
+            let check_input = removeMemberOfValueFromString 0 input alphabet
+
+            if length input == length (alphabet) ^ n && deBruijnCheck input n && check_input == "" && deBruijnCheckIfIsTrueUnique xs (deBruijnGenerateTable [] input n)
+            then do
+                v <- cleanGet (xs ++ [(input, deBruijnGeneratorAllTableRotate [] (deBruijnGenerateTable [] input n))]) n alphabet
+                return (v)
+            else do
+                v <- cleanGet xs n alphabet
+                return (v)
 
 deBruijnCheck::String -> Int -> Bool
 deBruijnCheck input n = if length table == length (removeDuplicate table) then True else False
@@ -88,7 +108,12 @@ deBruijnGenerateTable table input n = if length table == length input
                                       else
                                             deBruijnGenerateTable (table ++ [drop (length table) (take (length table + n) (input ++ input))]) input n
 
-
+deBruijnGeneratorAllTableRotate::[[String]] -> [String] -> [[String]]
+deBruijnGeneratorAllTableRotate xs [] = [[]]
+deBruijnGeneratorAllTableRotate xs val
+                                    | length xs == length val = xs
+                                    | otherwise = deBruijnGeneratorAllTableRotate (xs ++ [rotateList z val]) val
+                                    where z = length xs
 
 deBruijnGen::String -> Int -> [String]
 deBruijnGen alphabet n = []
@@ -129,3 +154,12 @@ numberOfOccurence [] a = 0
 numberOfOccurence (x:xs) a = if x == a
                              then 1 + numberOfOccurence xs a
                              else numberOfOccurence xs a
+
+rotateList::Int -> [a] -> [a]
+rotateList n xs = take (length xs) (drop n (xs ++ xs))
+
+deBruijnCheckIfIsTrueUnique::[(String, [[String]])] -> [String] -> Bool
+deBruijnCheckIfIsTrueUnique [] val = True
+deBruijnCheckIfIsTrueUnique (x:xs) val
+                            | elem val (snd x) = False
+                            | otherwise = deBruijnCheckIfIsTrueUnique xs val
