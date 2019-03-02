@@ -85,8 +85,13 @@ unique n alphabet = do
         let check_input = removeMemberOfValueFromString 0 input alphabet
         let check_input2 = removeMemberOfValueFromString 0 input2 alphabet
         if length input == length (alphabet) ^ convert_n && length input2 == length (alphabet) ^ convert_n && deBruijnCheck input convert_n && deBruijnCheck input2 convert_n && check_input == "" && check_input2 == "" && not (input == input2)
-                then
-                    putStrLn "OK"
+                then do
+                    let comb = deBruijnGeneratorAllTableRotate [] (deBruijnGenerateTable [] input convert_n)
+                    if not (elem (deBruijnGenerateTable [] input2 convert_n) comb)
+                    then
+                        putStrLn "OK"
+                    else
+                        putStrLn "KO"
                 else
                     putStrLn "KO"
 
