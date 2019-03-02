@@ -19,25 +19,56 @@ deBruijn_mode =
         "--clean"
     ]
 
+deBruijn_help::[String]
+deBruijn_help =
+    [
+        "USAGE: ./deBruijn n [a] [--check|--unique|--clean]",
+        "",
+        "      --check       check if a sequence is a de Bruijn sequence",
+        "      --unique      check if 2 sequences are distinct de Bruijn sequences",
+        "      --clean       list cleaning",
+        "      n             order of the sequence",
+        "      a             alphabet [def: \"01\"]"
+    ]
+
+
+deBruijnExit::IO (a)
+deBruijnExit = do
+             mapM putStrLn deBruijn_help
+             exitWith (ExitFailure 84)
+
 deBruijn_default_alphabet::String
 deBruijn_default_alphabet = "01"
 
 main = do
-    args <- getArgs                  -- IO [String]
+    args <- myGetArgs                  -- IO [String]
     progName <- getProgName          -- IO String
     let test = parseArgs args
     let flag = epureFlag (fst test)
     let arg = snd test
-    let alphabet = getDefaultAlphabet arg
-    n_int <- case readMaybe (head arg) of
-        Just x -> return x
-        Nothing -> exitWith (ExitFailure 84)
-    if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && not (n_int == 0)
-    then do
-        launchMode (head flag) (head arg) alphabet
-        exitWith (ExitSuccess)
+    if length arg == 0
+    then
+        deBruijnExit
+    else do
+        let alphabet = getDefaultAlphabet arg
+        n_int <- case readMaybe (head arg) of
+            Just x -> return x
+            Nothing -> deBruijnExit
+        if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && not (n_int == 0)
+        then do
+            launchMode (head flag) (head arg) alphabet
+            exitSuccess
+        else
+            deBruijnExit
+
+myGetArgs::IO([String])
+myGetArgs = do
+    args <- getArgs
+    if (length args == 0)
+    then
+        deBruijnExit
     else
-        exitWith (ExitFailure 84)
+        return (args)
 
 launchMode::String -> String -> String -> IO()
 launchMode mod n alphabet
