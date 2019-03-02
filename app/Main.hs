@@ -56,7 +56,8 @@ main = do
             Nothing -> deBruijnExit
         if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && not (n_int == 0)
         then do
-            launchMode (head flag) (head arg) alphabet
+            let tflag = if length flag == 0 then [] else head flag
+            launchMode tflag (head arg) alphabet
             exitSuccess
         else
             deBruijnExit
@@ -75,7 +76,7 @@ launchMode mod n alphabet
         | mod == deBruijn_mode!!0 = check n alphabet
         | mod == deBruijn_mode!!1 = unique n alphabet
         | mod == deBruijn_mode!!2 = clean n alphabet
-        | otherwise = exitWith (ExitFailure 84)
+        | otherwise = putStrLn (deBruijnGen alphabet (read n::Int))
 
 unique::String -> String -> IO()
 unique n alphabet = do
@@ -133,6 +134,35 @@ cleanGet xs n alphabet = do
                 v <- cleanGet xs n alphabet
                 return (v)
 
+deBruijnGen::String -> Int -> String
+deBruijnGen alphabet n = concat (lyndonTodeBruijn (lyndonWords [last alphabet] alphabet n) n)
+
+lyndonTodeBruijn::[String] -> Int -> [String]
+lyndonTodeBruijn xs n = [ x | x <- xs, mod n (length x) == 0]
+
+lyndonWords::String -> String -> Int -> [String]
+lyndonWords [] alphabet n = []
+lyndonWords xs alphabet n = [inc] ++ lyndonWords next alphabet n
+                            where inc = incLyndonWord xs alphabet
+                                  next = removeTrailingLyndonCharac (repeatLyndonWord inc (length xs) n) alphabet n
+
+
+removeTrailingLyndonCharac::String -> String -> Int -> String
+removeTrailingLyndonCharac xs alphabet n
+                            | (not (length xs == 0)) && (last xs == last alphabet) = removeTrailingLyndonCharac (take ((length xs) - 1) xs) alphabet n
+                            | otherwise = xs
+
+repeatLyndonWord::String -> Int -> Int -> String
+repeatLyndonWord xs x n
+                | n == length xs = xs
+                | otherwise = repeatLyndonWord (xs ++ [(reverse ((xs ++ xs))!!(x - 1))]) x n
+
+incLyndonWord::String -> String -> String
+incLyndonWord xs alpha = (take ((length xs) - 1) xs) ++ [getNextCarac (last xs) alpha]
+
+getNextCarac::Char -> String -> Char
+getNextCarac c alpha = (alpha ++ alpha)!!((head (elemIndices c alpha)) + 1)
+
 deBruijnCheck::String -> Int -> Bool
 deBruijnCheck input n = if length table == length (removeDuplicate table) then True else False
                         where table = deBruijnGenerateTable [] input n
@@ -151,9 +181,6 @@ deBruijnGeneratorAllTableRotate xs val
                                     | otherwise = deBruijnGeneratorAllTableRotate (xs ++ [rotateList z val]) val
                                     where z = length xs
 
-deBruijnGen::String -> Int -> [String]
-deBruijnGen alphabet n = []
-
 getDefaultAlphabet::[String] -> String
 getDefaultAlphabet xs = if length xs == 2 then xs!!1 else deBruijn_default_alphabet
 
@@ -162,8 +189,8 @@ parseArgs[] = ([], [])
 parseArgs xs = ([ x | x <- xs, isPrefixOf prefixArg x ], [ x | x <- xs, not (isPrefixOf prefixArg x) ])
 
 isFlagValid::[String] -> Bool
-isFlagValid[] = False
-isFlagValid xs = if not (length xs == 1) then False else True
+isFlagValid[] = True
+isFlagValid xs = if length xs == 1 then True else False
 
 epureFlag::[String] -> [String]
 epureFlag xs = removeDuplicate [ x | x <- xs, checkFlagsExist x]
