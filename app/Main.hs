@@ -54,7 +54,7 @@ main = do
         n_int <- case readMaybe (head arg) of
             Just x -> return x
             Nothing -> deBruijnExit
-        if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && not (n_int == 0) && not (length alphabet == 0)
+        if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && n_int > 0 && not (length alphabet == 0)
         then do
             let tflag = if length flag == 0 then [] else head flag
             launchMode tflag (head arg) alphabet
