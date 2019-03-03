@@ -83,30 +83,42 @@ unique::String -> String -> IO()
 unique n alphabet = do
         let convert_n = read n::Int
         input <- getLine
-        input2 <- getLine
         let check_input = removeMemberOfValueFromString 0 input alphabet
-        let check_input2 = removeMemberOfValueFromString 0 input2 alphabet
-        if length input == length (alphabet) ^ convert_n && length input2 == length (alphabet) ^ convert_n && deBruijnCheck input convert_n && deBruijnCheck input2 convert_n && check_input == "" && check_input2 == "" && not (input == input2)
-                then do
-                    let comb = deBruijnGeneratorAllTableRotate [] (deBruijnGenerateTable [] input convert_n)
-                    if not (elem (deBruijnGenerateTable [] input2 convert_n) comb)
-                    then
-                        putStrLn "OK"
-                    else
-                        putStrLn "KO"
-                else
-                    putStrLn "KO"
+        if check_input == ""
+        then do
+            input2 <- getLine
+            let check_input2 = removeMemberOfValueFromString 0 input2 alphabet
+            if check_input2 == ""
+            then
+                if length input == length (alphabet) ^ convert_n && length input2 == length (alphabet) ^ convert_n && deBruijnCheck input convert_n && deBruijnCheck input2 convert_n && not (input == input2)
+                        then do
+                            let comb = deBruijnGeneratorAllTableRotate [] (deBruijnGenerateTable [] input convert_n)
+                            if not (elem (deBruijnGenerateTable [] input2 convert_n) comb)
+                            then
+                                putStrLn "OK"
+                            else
+                                putStrLn "KO"
+                        else
+                            putStrLn "KO"
+            else
+                exitWith (ExitFailure 84)
+        else
+            exitWith (ExitFailure 84)
 
 check::String -> String -> IO()
 check n alphabet = do
         let convert_n = read n::Int
         input <- getLine
         let check_input = removeMemberOfValueFromString 0 input alphabet
-        if length input == length (alphabet) ^ convert_n && deBruijnCheck input convert_n && check_input == ""
+        if check_input == ""
         then
-            putStrLn "OK"
+            if length input == length (alphabet) ^ convert_n && deBruijnCheck input convert_n
+            then
+                putStrLn "OK"
+            else
+                putStrLn "KO"
         else
-            putStrLn "KO"
+            exitWith (ExitFailure 84)
 
 clean::String -> String -> IO()
 clean n alphabet = do
@@ -126,14 +138,17 @@ cleanGet xs n alphabet = do
             return (xs)
         else do
             let check_input = removeMemberOfValueFromString 0 input alphabet
-
-            if length input == length (alphabet) ^ n && deBruijnCheck input n && check_input == "" && deBruijnCheckIfIsTrueUnique xs (deBruijnGenerateTable [] input n)
-            then do
-                v <- cleanGet (xs ++ [(input, deBruijnGeneratorAllTableRotate [] (deBruijnGenerateTable [] input n))]) n alphabet
-                return (v)
-            else do
-                v <- cleanGet xs n alphabet
-                return (v)
+            if check_input == ""
+            then
+                if length input == length (alphabet) ^ n && deBruijnCheck input n && deBruijnCheckIfIsTrueUnique xs (deBruijnGenerateTable [] input n)
+                then do
+                    v <- cleanGet (xs ++ [(input, deBruijnGeneratorAllTableRotate [] (deBruijnGenerateTable [] input n))]) n alphabet
+                    return (v)
+                else do
+                    v <- cleanGet xs n alphabet
+                    return (v)
+            else
+                exitWith (ExitFailure 84)
 
 deBruijnGen::String -> Int -> String
 deBruijnGen alphabet n = concat (lyndonTodeBruijn (lyndonWords [last alphabet] alphabet n) n)
