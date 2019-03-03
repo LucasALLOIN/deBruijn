@@ -54,7 +54,7 @@ main = do
         n_int <- case readMaybe (head arg) of
             Just x -> return x
             Nothing -> deBruijnExit
-        if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && not (n_int == 0)
+        if isFlagValid flag && length arg >= 1 && length (removeDuplicate alphabet) == length alphabet && not (n_int == 0) && not (length alphabet == 0)
         then do
             let tflag = if length flag == 0 then [] else head flag
             launchMode tflag (head arg) alphabet
@@ -76,7 +76,8 @@ launchMode mod n alphabet
         | mod == deBruijn_mode!!0 = check n alphabet
         | mod == deBruijn_mode!!1 = unique n alphabet
         | mod == deBruijn_mode!!2 = clean n alphabet
-        | otherwise = putStrLn (deBruijnGen alphabet (read n::Int))
+        | mod == "" = putStrLn (deBruijnGen alphabet (read n::Int))
+        | otherwise = deBruijnExit
 
 unique::String -> String -> IO()
 unique n alphabet = do
@@ -193,7 +194,7 @@ isFlagValid[] = True
 isFlagValid xs = if length xs == 1 then True else False
 
 epureFlag::[String] -> [String]
-epureFlag xs = removeDuplicate [ x | x <- xs, checkFlagsExist x]
+epureFlag xs = removeDuplicate xs
 
 checkFlagsExist::String -> Bool
 checkFlagsExist x = if elem x deBruijn_mode then True else False
